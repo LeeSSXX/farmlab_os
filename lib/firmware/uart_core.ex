@@ -35,7 +35,8 @@ defmodule FarmbotOS.Firmware.UARTCore do
             rx_count: 0,
             rx_buffer: RxBuffer.new(),
             tx_buffer: TxBuffer.new(),
-            pin_watcher: nil
+            pin_watcher: nil,
+            red_led_pid: nil
 
   # The Firmware has a 120 second default timeout.
   # Queuing up 10 messages that take one minute each == 10 minutes.
@@ -120,7 +121,7 @@ defmodule FarmbotOS.Firmware.UARTCore do
   end
 
   def handle_info({:watch_pin, watcher}, state) do
-    if state.pin_watcher, do: raise("Pin observer did not cleanly exit!")
+    # if state.pin_watcher, do: raise("Pin observer did not cleanly exit!")
     {:noreply, Map.put(state, :pin_watcher, watcher)}
   end
 
@@ -212,12 +213,6 @@ defmodule FarmbotOS.Firmware.UARTCore do
     else
       FarmbotOS.Logger.debug(3, "Farmduino OK")
       set_boot_progress(%Percent{status: "complete", percent: 100})
-
-      FarmbotOS.Logger.success(
-        1,
-        "FarmBot is booted. Executing boot sequence..."
-      )
-
       initiate_sequence_on_boot()
     end
 

@@ -131,6 +131,8 @@ defmodule FarmbotOS.Lua.DataManipulationTest do
           locked_at: 0
         },
         mcu_params: %{
+          movement_axis_nr_steps_z: 1.1,
+          movement_step_per_mm_z: 1.1,
           movement_axis_nr_steps_y: 2.3,
           movement_step_per_mm_y: 4.5,
           movement_axis_nr_steps_x: 6.7,
@@ -139,7 +141,10 @@ defmodule FarmbotOS.Lua.DataManipulationTest do
       }
     end)
 
-    expected = [[{"x", 0.7528089887640449}, {"y", 0.5111111111111111}]]
+    expected = [
+      [{"x", 0.7528089887640449}, {"y", 0.5111111111111111}, {"z", 1.0}]
+    ]
+
     assert {:ok, expected} == lua("get garden size", "return garden_size()")
   end
 
@@ -189,6 +194,13 @@ defmodule FarmbotOS.Lua.DataManipulationTest do
     """
 
     assert {:ok, [true]} == lua("get_fbos_config/1", lua_code)
+  end
+
+  test "safe_z/0" do
+    fake_config = %{safe_height: 100}
+    expect(FarmbotOS.Asset, :fbos_config, 1, fn -> fake_config end)
+    expect(FarmbotOS.Asset.FbosConfig, :render, 1, fn params -> params end)
+    assert {[100], :lua} == DataManipulation.safe_z([], :lua)
   end
 
   test "get_firmware_config/1" do
@@ -242,6 +254,22 @@ defmodule FarmbotOS.Lua.DataManipulationTest do
     """
 
     assert {:ok, [true]} == lua("new_sensor_reading/1", lua_code)
+  end
+
+  test "group" do
+    assert {[[]], :lua} == DataManipulation.group([1], :lua)
+  end
+
+  test "group - no group" do
+    assert {[[]], :lua} == DataManipulation.group([1], :lua)
+  end
+
+  test "sort" do
+    expect(FarmbotOS.Asset, :get_point, fn _ ->
+      %FarmbotOS.Asset.Point{id: 1}
+    end)
+
+    assert {[[1]], :lua} == DataManipulation.sort([[{1, 1}], "random"], :lua)
   end
 
   test "take_photo - OK" do
@@ -383,6 +411,36 @@ defmodule FarmbotOS.Lua.DataManipulationTest do
   test "verify_tool(args, lua)" do
     expect(FarmbotOS.Lua, :raw_eval, 1, fn _, _ -> {:ok, [:result]} end)
     result = DataManipulation.verify_tool([], :fake_lua)
+    assert result == {[:result], :fake_lua}
+  end
+
+  test "get_curve(args, lua)" do
+    expect(FarmbotOS.Lua, :raw_eval, 1, fn _, _ -> {:ok, [:result]} end)
+    result = DataManipulation.get_curve([], :fake_lua)
+    assert result == {[:result], :fake_lua}
+  end
+
+  test "dispense(args, lua)" do
+    expect(FarmbotOS.Lua, :raw_eval, 1, fn _, _ -> {:ok, [:result]} end)
+    result = DataManipulation.dispense([], :fake_lua)
+    assert result == {[:result], :fake_lua}
+  end
+
+  test "water(args, lua)" do
+    expect(FarmbotOS.Lua, :raw_eval, 1, fn _, _ -> {:ok, [:result]} end)
+    result = DataManipulation.water([], :fake_lua)
+    assert result == {[:result], :fake_lua}
+  end
+
+  test "grid(args, lua)" do
+    expect(FarmbotOS.Lua, :raw_eval, 1, fn _, _ -> {:ok, [:result]} end)
+    result = DataManipulation.grid([], :fake_lua)
+    assert result == {[:result], :fake_lua}
+  end
+
+  test "wait(args, lua)" do
+    expect(FarmbotOS.Lua, :raw_eval, 1, fn _, _ -> {:ok, [:result]} end)
+    result = DataManipulation.wait([], :fake_lua)
     assert result == {[:result], :fake_lua}
   end
 

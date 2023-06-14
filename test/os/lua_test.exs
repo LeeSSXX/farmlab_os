@@ -25,12 +25,30 @@ defmodule FarmbotOS.LuaTest do
   end
 
   test "job setters/getters" do
+    expect(FarmbotOS.BotState, :set_job_progress, 4, fn
+      "foo", _ -> {:ok, []}
+    end)
+
+    expect(FarmbotOS.BotState, :fetch, 2, fn -> %{:jobs => %{"foo" => %{}}} end)
+
+    expect(FarmbotOS.BotState, :fetch, 3, fn ->
+      %{:jobs => %{"foo" => %{:unit => "percent", :status => "Complete"}}}
+    end)
+
     fns = Lua.builtins()
     name = "foo"
     args = [type: "bar", status: "baz", percent: 42.0]
     lua = %{}
     result = fns.set_job_progress.([name, args], lua)
     assert result == {[], %{}}
+    result = fns.set_job.([name], lua)
+    assert result == {[], %{}}
+    result = fns.complete_job.([name], lua)
+    assert result == {[], %{}}
+    result = fns.set_job.([name, args], lua)
+    assert result == {[], %{}}
+    {[result], %{}} = fns.get_job.([name], lua)
+    assert result.unit == "percent"
     {[result2], %{}} = fns.get_job_progress.([name], lua)
     assert result2.unit == "percent"
   end
@@ -80,6 +98,7 @@ defmodule FarmbotOS.LuaTest do
     "go_to_home(\"all\")",
     "go_to_home(\"x\")\ngo_to_home(\"y\")\ngo_to_home(\"z\")",
     "go_to_home()",
+    "group(1)",
     "move_absolute(1.0, 0, 0)\ncheck_position({x = 1.0, y = 0,  z = 0}, 0.50)",
     "move_absolute(1.0, 0, 0)\nmove_absolute(coordinate(1.0, 20, 30))",
     "move_absolute(20, 100, 100)\ncheck_position(coordinate(20, 100, 100), 1)",
@@ -93,7 +112,9 @@ defmodule FarmbotOS.LuaTest do
     "send_message(\"info\", \"Running FBOS v\" .. fbos_version())",
     "send_message(\"info\", \"Time zone is: \" .. get_device().timezone)",
     "send_message(\"info\", 23, {\"toast\"})",
+    "sort({}, \"random\")",
     "status = read_status()",
+    "toggle_pin(13)",
     "update_device({name = \"Test Farmbot\"})",
     "update_fbos_config({os_auto_update = false})",
     "update_firmware_config({encoder_enabled_z = 1.0})",
@@ -110,6 +131,7 @@ defmodule FarmbotOS.LuaTest do
     expect(Firmware, :emergency_unlock, 1, fn [], lua -> {[], lua} end)
     expect(Firmware, :find_home, 3, fn [_axis], lua -> {[true], lua} end)
     expect(Firmware, :read_pin, 1, fn _, lua -> {[55.22], lua} end)
+    expect(Firmware, :toggle_pin, 1, fn _, lua -> {[], lua} end)
     expect(Firmware, :write_pin, 1, fn _, lua -> {[], lua} end)
     expect(Firmware, :go_to_home, 4, fn [_axis], lua -> {[true], lua} end)
     expect(Info, :fbos_version, 1, fn _args, lua -> {["12.3.4"], lua} end)
@@ -158,6 +180,14 @@ defmodule FarmbotOS.LuaTest do
 
     expect(DataManipulation, :update_firmware_config, 1, fn
       [[{"encoder_enabled_z", 1.0}]], lua -> {[], lua}
+    end)
+
+    expect(FarmbotOS.Asset, :sort_points, 1, fn
+      [], "random" -> []
+    end)
+
+    expect(FarmbotOS.Asset, :find_points_via_group, 1, fn
+      1 -> %{point_ids: []}
     end)
 
     Enum.map(@documentation_examples, fn lua ->

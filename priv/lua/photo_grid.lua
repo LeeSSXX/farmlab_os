@@ -28,75 +28,86 @@ function fwe(key)
     if e then
         return tonumber(e)
     else
-        send_message("error", "You must first run camera calibration", "toast")
+        toast("You must first run camera calibration", "error")
         os.exit()
     end
 end
 
-local cam_rotation = fwe("total_rotation_angle")
-local scale = fwe("coord_scale")
-local z = fwe("camera_z")
-local raw_img_size_x_px = fwe("center_pixel_location_x") * 2
-local raw_img_size_y_px = fwe("center_pixel_location_y") * 2
-local raw_img_size_x_mm = raw_img_size_x_px * scale
-local raw_img_size_y_mm = raw_img_size_y_px * scale
-local margin_mm = cropAmount(raw_img_size_x_px, raw_img_size_y_px, cam_rotation)
-local cropped_img_size_x_mm = raw_img_size_x_mm - margin_mm
-local cropped_img_size_y_mm = raw_img_size_y_mm - margin_mm
-if math.abs(cam_rotation) < 45 then
-    x_spacing_mm = cropped_img_size_x_mm
-    y_spacing_mm = cropped_img_size_y_mm
-else
-    x_spacing_mm = cropped_img_size_y_mm
-    y_spacing_mm = cropped_img_size_x_mm
-end
-local grid_size_x_mm = garden_size().x - x_spacing_mm
-local y_grid_size_mm = garden_size().y - y_spacing_mm
-local x_grid_points = math.ceil(grid_size_x_mm / x_spacing_mm)
-local y_grid_points = math.ceil(y_grid_size_mm / y_spacing_mm)
-local total = (x_grid_points + 1) * (y_grid_points + 1)
-local x_grid_start_mm = (x_spacing_mm / 2)
-local y_grid_start_mm = (y_spacing_mm / 2)
-local x_offset_mm = fwe("camera_offset_x")
-local y_offset_mm = fwe("camera_offset_y")
+return function()
+  local cam_rotation = fwe("total_rotation_angle")
+  local scale = fwe("coord_scale")
+  local z = fwe("camera_z")
+  local raw_img_size_x_mm = fwe("center_pixel_location_x") * 2 * scale
+  local raw_img_size_y_mm = fwe("center_pixel_location_y") * 2 * scale
+  local margin_mm = cropAmount(raw_img_size_x_mm, raw_img_size_y_mm, cam_rotation)
+  local cropped_img_size_x_mm = raw_img_size_x_mm - margin_mm - 5
+  local cropped_img_size_y_mm = raw_img_size_y_mm - margin_mm - 5
+  local x_spacing_mm, y_spacing_mm
+  if math.abs(cam_rotation) < 45 then
+      x_spacing_mm = cropped_img_size_x_mm
+      y_spacing_mm = cropped_img_size_y_mm
+  else
+      x_spacing_mm = cropped_img_size_y_mm
+      y_spacing_mm = cropped_img_size_x_mm
+  end
+  x_spacing_mm = math.max(10, x_spacing_mm)
+  y_spacing_mm = math.max(10, y_spacing_mm)
+  local x_grid_size_mm = garden_size().x - x_spacing_mm
+  local y_grid_size_mm = garden_size().y - y_spacing_mm
+  local x_grid_points = math.ceil(x_grid_size_mm / x_spacing_mm) + 1
+  local y_grid_points = math.ceil(y_grid_size_mm / y_spacing_mm) + 1
+  local x_grid_start_mm = (x_spacing_mm / 2)
+  local y_grid_start_mm = (y_spacing_mm / 2)
+  local x_offset_mm = fwe("camera_offset_x")
+  local y_offset_mm = fwe("camera_offset_y")
 
-local each = function(callback)
-    local count = 0
-    for x_grid_index = 0, x_grid_points do
-        for y_grid_index = 0, y_grid_points do
-            local y = 0
-            count = count + 1
-            local y_temp1 = (y_spacing_mm * y_grid_points)
-            if (x_grid_index % 2) == 0 then
-                y = (y_grid_start_mm + (y_spacing_mm * y_grid_index) -
-                        y_offset_mm)
-            else
-                local reversed_index_y = y_grid_points - y_grid_index
-                y = (y_grid_start_mm + (y_spacing_mm * reversed_index_y) -
-                        y_offset_mm)
-            end
-            callback({
-                x = (x_grid_start_mm + (x_spacing_mm * x_grid_index) -
-                    x_offset_mm),
-                y = y,
-                z = z,
-                count = count
-            })
-        end
-    end
-end
+  local full_grid = grid{
+    grid_points = {
+      x = x_grid_points,
+      y = y_grid_points,
+      z = 1,
+    },
+    start = {
+      x = x_grid_start_mm,
+      y = y_grid_start_mm,
+      z = z,
+    },
+    spacing = {
+      x = x_spacing_mm,
+      y = y_spacing_mm,
+      z = 0,
+    },
+    offset = {
+      x = x_offset_mm,
+      y = y_offset_mm,
+      z = 0,
+    },
+    ignore_bounds = true,
+  }
 
-return {
-    y_spacing_mm = y_spacing_mm,
-    y_offset_mm = y_offset_mm,
-    y_grid_start_mm = y_grid_start_mm,
-    y_grid_size_mm = y_grid_size_mm,
-    y_grid_points = y_grid_points,
-    x_spacing_mm = x_spacing_mm,
-    x_offset_mm = x_offset_mm,
-    x_grid_start_mm = x_grid_start_mm,
-    x_grid_points = x_grid_points,
-    z = z,
-    total = total,
-    each = each
-}
+  if not full_grid then
+    os.exit()
+  end
+
+  local each = function(callback)
+    full_grid.each(function(cell)
+      callback({ x = cell.x, y = cell.y, z = cell.z, count = cell.count })
+    end)
+  end
+
+  return {
+      y_spacing_mm = y_spacing_mm,
+      y_offset_mm = y_offset_mm,
+      y_grid_start_mm = y_grid_start_mm,
+      y_grid_size_mm = y_grid_size_mm,
+      y_grid_points = y_grid_points,
+      x_spacing_mm = x_spacing_mm,
+      x_offset_mm = x_offset_mm,
+      x_grid_start_mm = x_grid_start_mm,
+      x_grid_size_mm = x_grid_size_mm,
+      x_grid_points = x_grid_points,
+      z = z,
+      total = full_grid.total,
+      each = each,
+  }
+end

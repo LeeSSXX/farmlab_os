@@ -38,7 +38,9 @@
   </head>
 
   <body>
-    <h1>Configure FarmBot <%= version %> </h1>
+    <h1>Configure FarmBot</h1>
+    <h2><%= subtitle %></h2>
+
     <div class="widget">
       <div class="widget-header"> <h5>Configure Wireless</h5> </div>
       <div class="widget-content">
@@ -60,7 +62,7 @@
             <div id="pskdiv">
               <label for=psk> PSK </label>
               <div class="psk-input-group">
-                <input type="password" name="psk" id="psk">
+                <input type="text" name="psk" id="psk">
                 <img class="eye-icon" src="icon_eye.svg"
                   onclick="showPassword('psk')" title="Show password">
               </div>
@@ -74,7 +76,7 @@
             <div id="eappassworddiv" hidden>
               <label for=password> EAP Password </label>
               <div class="psk-input-group">
-                <input type="password" name="password" id="password">
+                <input type="text" name="password" id="password">
                 <img class="eye-icon" src="icon_eye.svg"
                   onclick="showPassword('password')" title="Show password">
               </div>
@@ -88,5 +90,7 @@
         </form>
       </div>
     </div>
+
+    <%= double_check_warning %>
   </body>
 </html>

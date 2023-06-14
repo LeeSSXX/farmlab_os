@@ -136,6 +136,10 @@ defmodule FarmbotOS.Lua.DataManipulation do
     {[conf], lua}
   end
 
+  def safe_z(_args, lua) do
+    get_fbos_config(["safe_height"], lua)
+  end
+
   def update_firmware_config([table], lua) do
     Map.new(table)
     |> Asset.update_firmware_config!()
@@ -168,6 +172,29 @@ defmodule FarmbotOS.Lua.DataManipulation do
     {[true], lua}
   end
 
+  def group([group_id], lua) do
+    point_group = Asset.find_points_via_group(group_id)
+
+    if point_group do
+      points = point_group.point_ids
+      {[points], lua}
+    else
+      {[[]], lua}
+    end
+  end
+
+  def sort([point_ids, sort_method], lua) do
+    points =
+      point_ids
+      |> Enum.map(fn {_, id} -> Asset.get_point(id: id) end)
+
+    ordered =
+      Asset.sort_points(points, sort_method)
+      |> Enum.map(fn p -> p.id end)
+
+    {[ordered], lua}
+  end
+
   def soil_height([x, y], lua),
     do: {[SpecialValue.soil_height(%{x: x, y: y})], lua}
 
@@ -184,8 +211,9 @@ defmodule FarmbotOS.Lua.DataManipulation do
     p = FarmbotOS.BotState.fetch().mcu_params
 
     result = %{
-      y: p.movement_axis_nr_steps_y / p.movement_step_per_mm_y,
-      x: p.movement_axis_nr_steps_x / p.movement_step_per_mm_x
+      z: (p.movement_axis_nr_steps_z || 0) / (p.movement_step_per_mm_z || 1),
+      y: (p.movement_axis_nr_steps_y || 0) / (p.movement_step_per_mm_y || 1),
+      x: (p.movement_axis_nr_steps_x || 0) / (p.movement_step_per_mm_x || 1)
     }
 
     {[Util.map_to_table(result)], lua}
@@ -221,6 +249,11 @@ defmodule FarmbotOS.Lua.DataManipulation do
   def rpc(args, lua), do: lua_extension(args, lua, "rpc")
   def sequence(args, lua), do: lua_extension(args, lua, "sequence")
   def verify_tool(args, lua), do: lua_extension(args, lua, "verify_tool")
+  def get_curve(args, lua), do: lua_extension(args, lua, "get_curve")
+  def dispense(args, lua), do: lua_extension(args, lua, "dispense")
+  def water(args, lua), do: lua_extension(args, lua, "water")
+  def grid(args, lua), do: lua_extension(args, lua, "grid")
+  def wait(args, lua), do: lua_extension(args, lua, "wait")
 
   def get_seed_tray_cell(args, lua),
     do: lua_extension(args, lua, "get_seed_tray_cell")

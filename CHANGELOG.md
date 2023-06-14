@@ -1,5 +1,53 @@
 # Changelog
 
+# 15.4.1
+
+ * Add new `dispense`, `water`, `grid`, `set_job`, `complete_job`, and `get_job` lua helpers.
+ * Add job progress tracking to `wait` lua helper.
+ * Add `z` to `garden_size` and add `0` fallback values.
+ * Fix `photo_grid` lua helper calculation bug.
+
+# 15.4.0
+
+ * Add new `get_curve` lua helper.
+ * Add/expose new plant fields: `depth`, `water_curve_id`, `spread_curve_id`, `height_curve_id`, `age`.
+ * Fix `photo_grid` and `api` lua helper bugs.
+
+# 15.3.6
+
+ * Add new warning element to configurator. Misc UI changes.
+
+# 15.3.4
+
+ * Fix `move_absolute` and `check_position` lua helper bugs.
+ * Add new `get_xyz`, `safe_z`, `mount_tool`, and `dismount_tool` lua helpers.
+
+# 15.3.3
+
+ * Add new `on`, `off`, `debug`, `toast`, and `move` lua helpers.
+ * Fix abort command in Genesis and Express firmware.
+
+# 15.3.2
+
+ * Fix bug running sequences with large numbers of steps.
+ * Allow configuration to hidden SSIDs.
+
+# 15.3.1
+
+ * Improve system performance while using the red LED.
+
+# 15.3.0
+
+ * Add new optimized and alternating sort methods.
+ * Add `sort` and `group` lua helpers.
+ * Add camera device info to informational settings.
+ * Add support for peripherals to `toggle_pin`.
+ * Add `toggle_pin` lua helper.
+
+# 15.2.1
+
+ * Fix boot sequence edge case bug.
+
 # 15.2.0
 
  * Add job progress tracking to farmware
