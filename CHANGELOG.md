@@ -1,5 +1,23 @@
 # Changelog
 
+# 15.4.5
+
+ * Change MQTT client.
+ * Genesis firmware updates.
+
+# 15.4.4
+
+ * Dependency updates.
+
+# 15.4.3
+
+ * Rework `photo_grid` lua helper exit upon missing configs.
+
+# 15.4.2
+
+ * Add tool name input option to `mount_tool` lua helper.
+ * Adjust configurator timeout text.
+
 # 15.4.1
 
  * Add new `dispense`, `water`, `grid`, `set_job`, `complete_job`, and `get_job` lua helpers.
