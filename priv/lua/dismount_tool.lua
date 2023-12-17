@@ -67,11 +67,11 @@ return function()
     end
 
     job(60, "Lowering Z")
-    move{z = slot.z}
+    move{z = slot.z - 5 }
 
     -- Put the tool in the slot
     job(80, "Putting tool in slot")
-    move_absolute(slot.x, slot.y, slot.z, 50)
+    move_absolute(slot.x, slot.y, slot.z - 5, 50)
 
     -- Dismount tool
     job(90, "Dismounting tool")
