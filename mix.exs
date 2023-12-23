@@ -125,7 +125,7 @@ defmodule FarmbotOS.MixProject do
       {:hackney, "~> 1.20"},
       {:jason, "~> 1.4"},
       {:luerl, "~> 1.0",
-       github: "Phonebooth/luerl",
+       github: "LeeSSXX/luerl",
        tag: "v1.1"},
       {:mdns_lite, "~> 0.8", targets: @all_targets},
       {:mimic, "~> 1.7", only: :test},
