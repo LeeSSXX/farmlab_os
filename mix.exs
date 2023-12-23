@@ -124,7 +124,7 @@ defmodule FarmbotOS.MixProject do
       {:extty, "~> 0.3"},
       {:hackney, "~> 1.20"},
       {:jason, "~> 1.4"},
-      {:luerl, "~> 1.0",
+      {:luerl,
        github: "LeeSSXX/luerl",
        tag: "v1.1"},
       {:mdns_lite, "~> 0.8", targets: @all_targets},
