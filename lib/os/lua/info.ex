@@ -78,6 +78,37 @@ defmodule FarmbotOS.Lua.Info do
     {[v, nil], lua}
   end
 
+  def utc(["year"], lua), do: {[utc_p().year], lua}
+  def utc(["month"], lua), do: {[utc_p().month], lua}
+  def utc(["day"], lua), do: {[utc_p().day], lua}
+  def utc(["hour"], lua), do: {[utc_p().hour], lua}
+  def utc(["minute"], lua), do: {[utc_p().minute], lua}
+  def utc(["second"], lua), do: {[utc_p().second], lua}
+  def utc(_, lua), do: {[DateTime.to_iso8601(utc_p())], lua}
+
+  def local_time(["year"], lua), do: {[local_time_p().year], lua}
+  def local_time(["month"], lua), do: {[local_time_p().month], lua}
+  def local_time(["day"], lua), do: {[local_time_p().day], lua}
+  def local_time(["hour"], lua), do: {[local_time_p().hour], lua}
+  def local_time(["minute"], lua), do: {[local_time_p().minute], lua}
+  def local_time(["second"], lua), do: {[local_time_p().second], lua}
+  def local_time(_, lua), do: {[DateTime.to_iso8601(local_time_p())], lua}
+
+  defp utc_p() do
+    DateTime.utc_now()
+  end
+
+  defp local_time_p() do
+    tz = FarmbotOS.Asset.device().timezone
+    datetime = utc_p()
+    Timex.Timezone.convert(datetime, tz)
+  end
+
+  def to_unix([datetime_string], lua) do
+    {:ok, datetime, _} = DateTime.from_iso8601(datetime_string)
+    {[DateTime.to_unix(datetime)], lua}
+  end
+
   @doc "Returns the current month"
   def current_month(_args, lua) do
     {[DateTime.utc_now().month], lua}
