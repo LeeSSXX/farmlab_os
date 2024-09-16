@@ -6,7 +6,7 @@
   <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Configure Farmbot's Network </title>
+    <title> Configure FarmLab's Network </title>
     <link rel="stylesheet" href="/styles.css">
     <script src="security_icon_lookup.js"></script>
     <script type="text/javascript">
@@ -49,7 +49,7 @@
   </head>
 
   <body>
-    <h1>Configure FarmBot</h1>
+    <h1>Configure FarmLab</h1>
     <h2><%= subtitle %></h2>
 
     <div class="widget">

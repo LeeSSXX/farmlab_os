@@ -15,7 +15,7 @@ defmodule FarmbotOS.Config.Repo.Migrations.SeedGroups do
     )
 
     execute(
-      "INSERT INTO string_values (id, value) VALUES (1, 'https://my.farm.bot'), (2, NULL), (3, NULL), (4, NULL), (11, NULL), (12, '0.pool.ntp.org'), (13, '1.pool.ntp.org'), (14, 'my.farm.bot'), (15, NULL);"
+      "INSERT INTO string_values (id, value) VALUES (1, 'https://my.farmlab.ltd'), (2, NULL), (3, NULL), (4, NULL), (11, NULL), (12, '0.pool.ntp.org'), (13, '1.pool.ntp.org'), (14, 'my.farmlab.ltd'), (15, NULL);"
     )
 
     execute(
